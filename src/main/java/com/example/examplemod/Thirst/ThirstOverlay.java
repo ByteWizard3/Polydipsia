@@ -10,6 +10,8 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 import java.awt.*;
+import java.text.DecimalFormat;
+
 public class ThirstOverlay implements IGuiOverlay {
     private static final ResourceLocation FILLED_THIRST = new ResourceLocation(ExampleMod.MODID,
             "textures/thirst/filled_thirst.png");
@@ -31,18 +33,20 @@ public class ThirstOverlay implements IGuiOverlay {
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, EMPTY_THIRST);
-        for(int i = 0; i < 10; i++) {
-            guiGraphics.blit(EMPTY_THIRST,x - 94 + (i * 9), y - 54,0,0,12,12,
-                    12,12);
-        }
-        RenderSystem.setShaderTexture(0, FILLED_THIRST);
-        guiGraphics.blit(THIRST_BAR_EMPTY,50,50,0,0,274,15,274,15);
-        guiGraphics.blit(THIRST_BAR_EMPTY,10,100,0,0,50,15,50,15);
-        guiGraphics.blit(THIRST_BAR_EMPTY,20,150,0,0,274,5,274,5);
-        guiGraphics.blit(THIRST_BAR_EMPTY,20,y-20,0,0,120,10,120,10);
-        guiGraphics.drawString(gui.getFont(),"5%",75,75, COLOR_WHITE);
-        guiGraphics.blit(WATER_DROP,130,y-20,0,0,12,12,12,12);
+        int ylevelOfThirstBar=y-15;
+        int xLevelOfThirstBar=5;
+        int thirstBarHeight=7;
+        int thirstBarWidth=70;
+        int waterDropx=xLevelOfThirstBar+thirstBarWidth+1;
+        int waterdropSize=8;
+        int textX=waterDropx+waterdropSize+3;
+        guiGraphics.blit(THIRST_BAR_EMPTY,xLevelOfThirstBar,ylevelOfThirstBar,0,0,thirstBarWidth,thirstBarHeight,thirstBarWidth,thirstBarHeight);
+        guiGraphics.blit(WATER_DROP,waterDropx,ylevelOfThirstBar,0,0,waterdropSize,waterdropSize,waterdropSize,waterdropSize);
+        DecimalFormat df = new DecimalFormat("00.00");
+        double d=100;
+        guiGraphics.drawString(gui.getFont(),df.format(d)+"%",textX,ylevelOfThirstBar, COLOR_WHITE);
+        int percentage= (int) (thirstBarWidth*(d/100));
+        guiGraphics.blit(THIRST_BAR_FULL,xLevelOfThirstBar,ylevelOfThirstBar,0,0,percentage,thirstBarHeight,thirstBarWidth,thirstBarHeight);
 
         //        guiGraphics.blit(THIRST_BAR_FULL,50,50,0,0,20,15,274,15);
 
