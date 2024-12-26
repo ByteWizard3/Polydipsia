@@ -1,14 +1,19 @@
 package com.example.examplemod;
 
+import com.example.examplemod.Thirst.ClientThirstData;
+import com.example.examplemod.Thirst.PlayerThirst;
+import com.example.examplemod.Thirst.PlayerThirstProvider;
 import com.example.examplemod.Thirst.ThirstOverlay;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -16,10 +21,15 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -30,10 +40,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
+import static com.example.examplemod.Thirst.ClientThirstData.tickCount;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(ExampleMod.MODID)
-public class ExampleMod
-{
+public class ExampleMod {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "examplemod";
     // Directly reference a slf4j logger
@@ -62,8 +73,7 @@ public class ExampleMod
                 output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
-    public ExampleMod(FMLJavaModLoadingContext context)
-    {
+    public ExampleMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
 
         // Register the commonSetup method for modloading
@@ -86,8 +96,7 @@ public class ExampleMod
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+    private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
 
@@ -100,37 +109,90 @@ public class ExampleMod
     }
 
     // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
             event.accept(EXAMPLE_BLOCK_ITEM);
     }
 
+
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
+    public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
     }
 
+
+    @SubscribeEvent
+    public void onAttachCapabilitiesPlayer(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof Player) {
+            if (!event.getObject().getCapability(PlayerThirstProvider.PLAYER_THIRST).isPresent()) {
+                event.addCapability(new ResourceLocation(MODID, "properties"), new PlayerThirstProvider());
+            }
+        }
+    }
+
+
+    @SubscribeEvent
+    public void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+        event.register(PlayerThirst.class);
+
+    }
+
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.side == LogicalSide.SERVER) {
+            event.player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
+                tickCount++;
+                if(thirst.getThirst()>0 && event.player.tickCount==100){
+                    tickCount=0;
+                    thirst.subThirst(1);
+                }
+//                if (thirst.getThirst() > 0 && event.player.getRandom().nextFloat() < 0.005f) { // Once Every 10 Seconds on Avg
+//                    thirst.subThirst(1);
+//                    ClientThirstData.set(thirst.getThirst());
+//                }
+            });
+        }
+    }
+
+    @SubscribeEvent
+    public void onLivingHurt(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Sheep) {
+            if (event.getSource().getEntity() instanceof Player player) {
+                if (player.getMainHandItem().getItem() == Items.BEEF) {
+                    player.sendSystemMessage(Component.literal(player.getName().getString() + " hurt a Sheep with BEEF! But why?"));
+                    player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
+                        player.sendSystemMessage(Component.literal("currentPlayerThirst is "+thirst.getThirst()));
+                    });
+                } else {
+                    player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
+                        thirst.addThirst(10);
+                        ClientThirstData.set(thirst.getThirst());
+                    });
+                    player.sendSystemMessage(Component.literal(player.getName().getString() + " hurt a Sheep!"));
+                }
+            }
+        }
+    }
+
+
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
+    public static class ClientModEvents {
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
+        public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
         }
 
         @SubscribeEvent
-        public static void registerHuds(RegisterGuiOverlaysEvent event){
+        public static void registerHuds(RegisterGuiOverlaysEvent event) {
             LOGGER.info("Registering Thirst Overlay");
-            ThirstOverlay guiOverlay=new ThirstOverlay();
-            event.registerAboveAll("thirst",guiOverlay);
+            ThirstOverlay guiOverlay = new ThirstOverlay();
+            event.registerAboveAll("thirst", guiOverlay);
         }
     }
 }
