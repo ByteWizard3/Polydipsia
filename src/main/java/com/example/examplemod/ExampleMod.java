@@ -142,16 +142,13 @@ public class ExampleMod {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.side == LogicalSide.SERVER) {
+            ClientThirstData.tickCount++;
             event.player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
-                tickCount++;
-                if(thirst.getThirst()>0 && event.player.tickCount==100){
-                    tickCount=0;
+                if(thirst.getThirst()>0 && ClientThirstData.tickCount/100>1){
+                    ClientThirstData.tickCount=0;
                     thirst.subThirst(1);
+                    ClientThirstData.set(thirst.getThirst());
                 }
-//                if (thirst.getThirst() > 0 && event.player.getRandom().nextFloat() < 0.005f) { // Once Every 10 Seconds on Avg
-//                    thirst.subThirst(1);
-//                    ClientThirstData.set(thirst.getThirst());
-//                }
             });
         }
     }
