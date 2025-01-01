@@ -4,16 +4,28 @@ import com.github.bytewizard3.polydipsia.Thirst.ClientThirstData;
 import com.github.bytewizard3.polydipsia.Thirst.PlayerThirst;
 import com.github.bytewizard3.polydipsia.Thirst.PlayerThirstProvider;
 import com.github.bytewizard3.polydipsia.Thirst.ThirstOverlay;
+import com.github.bytewizard3.polydipsia.damage.ModDamageSources;
+import com.github.bytewizard3.polydipsia.damage.ModDamageTypes;
+import com.github.bytewizard3.polydipsia.item.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -22,6 +34,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -38,11 +53,14 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.util.Set;
+
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(ExampleMod.MODID)
-public class ExampleMod {
+@Mod(PolydipsiaMod.MODID)
+public class PolydipsiaMod {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "polydipsia";
     // Directly reference a slf4j logger
@@ -59,6 +77,7 @@ public class ExampleMod {
     // Creates a new BlockItem with the id "examplemod:example_block", combining the namespace and path
     public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block", () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties()));
 
+
     // Creates a new food item with the id "examplemod:example_id", nutrition 1 and saturation 2
     public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item", () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEat().nutrition(1).saturationMod(2f).build())));
@@ -71,12 +90,12 @@ public class ExampleMod {
                 output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
-    public ExampleMod(FMLJavaModLoadingContext context) {
+    public PolydipsiaMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-
+        ModItems.register(modEventBus);
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so items get registered
@@ -108,8 +127,9 @@ public class ExampleMod {
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
-            event.accept(EXAMPLE_BLOCK_ITEM);
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+            event.accept(ModItems.CAMELPACK_ITEM);
+        }
     }
 
 
@@ -141,13 +161,50 @@ public class ExampleMod {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.side == LogicalSide.SERVER) {
             ClientThirstData.tickCount++;
-            event.player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
-                if(thirst.getThirst()>0 && ClientThirstData.tickCount/100>1){
-                    ClientThirstData.tickCount=0;
+            @NotNull LazyOptional<PlayerThirst> playerThirst=event.player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
+            Player player=event.player;
+            playerThirst.ifPresent(thirst -> {
+                if (thirst.getThirst() > 0 && ClientThirstData.tickCount / 100 > 1) {
+                    ClientThirstData.tickCount = 0;
                     thirst.subThirst(1);
                     ClientThirstData.set(thirst.getThirst());
                 }
             });
+
+//            event.player.getArmorSlots().forEach(slot->{
+//                LOGGER.info("SOLTS rrr:{} {} ",slot.getDescriptionId());
+//                LOGGER.info("SOLTS index:{} ");
+//            });
+
+            // Armor slots are: 0 -> Helmet, 1 -> Chestplate, 2 -> Leggings, 3 -> Boots
+            ItemStack chestplayeItem = event.player.getInventory().getArmor(2);
+            if (chestplayeItem.is(ModItems.CAMELPACK_ITEM.get())) {
+                if (ClientThirstData.tickCount % 80 == 0) {
+                    playerThirst.ifPresent(thirst -> {
+                        thirst.addThirst(1);
+                        chestplayeItem.hurtAndBreak(1, event.player, player2 -> player2.broadcastBreakEvent(EquipmentSlot.CHEST));
+                        ClientThirstData.set(thirst.getThirst());
+                    });
+
+                }
+            }
+            if(ClientThirstData.getPlayerThirst()<10){
+                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION,10));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,10,2));
+                player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN,10,2));
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,10,2));
+            }
+
+            Level level=event.player.level();
+            DamageSource damageSource = new ModDamageSources(
+                    level.registryAccess())
+                    .dehydration(player, (LivingEntity) player);
+
+
+            if(ClientThirstData.getPlayerThirst()<1){
+                player.hurt(damageSource,1);
+
+            }
         }
     }
 
@@ -158,7 +215,7 @@ public class ExampleMod {
                 if (player.getMainHandItem().getItem() == Items.BEEF) {
                     player.sendSystemMessage(Component.literal(player.getName().getString() + " hurt a Sheep with BEEF! But why?"));
                     player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
-                        player.sendSystemMessage(Component.literal("currentPlayerThirst is "+thirst.getThirst()));
+                        player.sendSystemMessage(Component.literal("currentPlayerThirst is " + thirst.getThirst()));
                     });
                 } else {
                     player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
@@ -182,6 +239,7 @@ public class ExampleMod {
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
 
         }
+
 
         @SubscribeEvent
         public static void registerHuds(RegisterGuiOverlaysEvent event) {

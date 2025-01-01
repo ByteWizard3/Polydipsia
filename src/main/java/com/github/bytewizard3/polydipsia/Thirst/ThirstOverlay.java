@@ -1,6 +1,6 @@
 package com.github.bytewizard3.polydipsia.Thirst;
 
-import com.github.bytewizard3.polydipsia.ExampleMod;
+import com.github.bytewizard3.polydipsia.PolydipsiaMod;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -11,15 +11,15 @@ import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import java.text.DecimalFormat;
 
 public class ThirstOverlay implements IGuiOverlay {
-    private static final ResourceLocation FILLED_THIRST = new ResourceLocation(ExampleMod.MODID,
+    private static final ResourceLocation FILLED_THIRST = new ResourceLocation(PolydipsiaMod.MODID,
             "textures/thirst/filled_thirst.png");
-    private static final ResourceLocation EMPTY_THIRST = new ResourceLocation(ExampleMod.MODID,
+    private static final ResourceLocation EMPTY_THIRST = new ResourceLocation(PolydipsiaMod.MODID,
             "textures/thirst/empty_thirst.png");
-    private static final ResourceLocation THIRST_BAR_EMPTY = new ResourceLocation(ExampleMod.MODID,
+    private static final ResourceLocation THIRST_BAR_EMPTY = new ResourceLocation(PolydipsiaMod.MODID,
             "textures/thirst/thirst_bar_empty.png");
-    private static final ResourceLocation THIRST_BAR_FULL = new ResourceLocation(ExampleMod.MODID,
+    private static final ResourceLocation THIRST_BAR_FULL = new ResourceLocation(PolydipsiaMod.MODID,
             "textures/thirst/thirst_bar_full.png");
-    private static final ResourceLocation WATER_DROP = new ResourceLocation(ExampleMod.MODID,
+    private static final ResourceLocation WATER_DROP = new ResourceLocation(PolydipsiaMod.MODID,
             "textures/thirst/drop.png");
     int COLOR_WHITE = 16777215;
 
