@@ -1,9 +1,9 @@
-package com.example.examplemod;
+package com.github.bytewizard3.polydipsia;
 
-import com.example.examplemod.Thirst.ClientThirstData;
-import com.example.examplemod.Thirst.PlayerThirst;
-import com.example.examplemod.Thirst.PlayerThirstProvider;
-import com.example.examplemod.Thirst.ThirstOverlay;
+import com.github.bytewizard3.polydipsia.Thirst.ClientThirstData;
+import com.github.bytewizard3.polydipsia.Thirst.PlayerThirst;
+import com.github.bytewizard3.polydipsia.Thirst.PlayerThirstProvider;
+import com.github.bytewizard3.polydipsia.Thirst.ThirstOverlay;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
@@ -40,13 +40,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
-import static com.example.examplemod.Thirst.ClientThirstData.tickCount;
-
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(ExampleMod.MODID)
 public class ExampleMod {
     // Define mod id in a common place for everything to reference
-    public static final String MODID = "examplemod";
+    public static final String MODID = "polydipsia";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
     // Create a Deferred Register to hold Blocks which will all be registered under the "examplemod" namespace
