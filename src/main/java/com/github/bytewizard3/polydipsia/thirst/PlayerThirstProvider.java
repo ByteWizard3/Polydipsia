@@ -1,4 +1,4 @@
-package com.github.bytewizard3.polydipsia.Thirst;
+package com.github.bytewizard3.polydipsia.thirst;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayerThirstProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-    public static Capability<PlayerThirst> PLAYER_THIRST = CapabilityManager.get(new CapabilityToken<PlayerThirst>() { });
+    public static Capability<PlayerThirst> PLAYER_THIRST = CapabilityManager.get(new CapabilityToken<PlayerThirst>() {
+    });
 
     private PlayerThirst thirst = null;
     private final LazyOptional<PlayerThirst> optional = LazyOptional.of(this::createPlayerThirst);

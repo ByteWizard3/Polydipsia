@@ -1,11 +1,11 @@
-package com.github.bytewizard3.polydipsia.Thirst;
+package com.github.bytewizard3.polydipsia.thirst;
 
 import net.minecraft.nbt.CompoundTag;
 
 public class PlayerThirst {
     private double thirst;
-    private final double MIN_THIRST = 0;
-    private final double MAX_THIRST = 100;
+    private static final double MIN_THIRST = 0;
+    private static final double MAX_THIRST = 100;
 
     public double getThirst() {
         return thirst;
@@ -29,5 +29,12 @@ public class PlayerThirst {
 
     public void loadNBTData(CompoundTag nbt) {
         thirst = nbt.getDouble("thirst");
+    }
+
+    public void setThirst(double maxThirst) {
+        this.thirst=Math.max(MIN_THIRST,Math.min(MAX_THIRST,maxThirst));
+    }
+    public void setInitialThirst() {
+        this.thirst=MAX_THIRST;
     }
 }

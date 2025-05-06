@@ -1,18 +1,14 @@
 package com.github.bytewizard3.polydipsia;
 
-import com.github.bytewizard3.polydipsia.Thirst.ClientThirstData;
-import com.github.bytewizard3.polydipsia.Thirst.PlayerThirst;
-import com.github.bytewizard3.polydipsia.Thirst.PlayerThirstProvider;
-import com.github.bytewizard3.polydipsia.Thirst.ThirstOverlay;
+import com.github.bytewizard3.polydipsia.data.ClientThirstData;
+import com.github.bytewizard3.polydipsia.thirst.PlayerThirst;
+import com.github.bytewizard3.polydipsia.thirst.PlayerThirstProvider;
+import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
 import com.github.bytewizard3.polydipsia.damage.ModDamageSources;
-import com.github.bytewizard3.polydipsia.damage.ModDamageTypes;
 import com.github.bytewizard3.polydipsia.item.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
@@ -20,7 +16,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -34,13 +29,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -55,8 +50,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
-
-import java.util.Set;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(PolydipsiaMod.MODID)
@@ -198,11 +191,11 @@ public class PolydipsiaMod {
             Level level=event.player.level();
             DamageSource damageSource = new ModDamageSources(
                     level.registryAccess())
-                    .dehydration(player, (LivingEntity) player);
+                    .dehydration(player,null);
 
 
             if(ClientThirstData.getPlayerThirst()<1){
-                player.hurt(damageSource,1);
+                player.hurt(damageSource,10);
 
             }
         }
@@ -226,6 +219,24 @@ public class PolydipsiaMod {
                 }
             }
         }
+    }
+    @SubscribeEvent
+    public void onDeath(LivingDeathEvent event){
+        if(event.getEntity() instanceof Player){
+            Player player= (Player) event.getEntity();
+            @NotNull LazyOptional<PlayerThirst> playerThirst=player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
+            playerThirst.ifPresent(thirst -> {
+                thirst.addThirst(100);
+                ClientThirstData.set(thirst.getThirst());
+            });
+        }
+    }
+    @SubscribeEvent
+    public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        event.getEntity().getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
+            thirst.setInitialThirst(); // full thirst
+            ClientThirstData.set(thirst.getThirst());
+        });
     }
 
 
