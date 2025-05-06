@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:bucket" },
+    { "item": "yourmodid:dirty_water_bottle" }
+  ],
+  "result": {
+    "item": "yourmodid:dirty_water_bucket"
+  }
+}

@@ -1,4 +1,6 @@
 {
 	"item.polydipsia.camelpack": "Camelpack",
-	"death.attack.dehydration": "Drink water u fool"
+	"death.attack.dehydration": "Drink water u fool",
+	"item.polydipsia.dirty_water_bucket": "Bucket of Dirty Water",
+	"itemGroup.polydipsia.polydipsia_tab": "Polydipsia"
 }

@@ -1,7 +1,10 @@
 package com.github.bytewizard3.polydipsia.item;
 
+import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.item.custom.CamelpackItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,5 +20,20 @@ public class ModItems {
     }
 
     public static final RegistryObject<Item> CAMELPACK_ITEM = ITEMS.register("camelpack", CamelpackItem::getInstance);
+    public static final RegistryObject<Item> DIRTY_WATER_BOTTLE =
+            ITEMS.register("dirty_water_bottle", () -> new Item(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> MUDDY_WATER_BOTTLE =
+            ITEMS.register("muddy_water_bottle", () -> new Item(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> TOXIC_WATER_BOTTLE =
+            ITEMS.register("toxic_water_bottle", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> DIRTY_WATER_BUCKET =
+            ModItems.ITEMS.register("dirty_water_bucket", () ->
+                    new BucketItem(ModFluids.DIRTY_WATER.get(), new Item.Properties()
+                            .craftRemainder(Items.BUCKET)
+                            .stacksTo(1)));
+
+
 
 }

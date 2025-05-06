@@ -1,6 +1,7 @@
 package com.github.bytewizard3.polydipsia;
 
 import com.github.bytewizard3.polydipsia.data.ClientThirstData;
+import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.thirst.PlayerThirst;
 import com.github.bytewizard3.polydipsia.thirst.PlayerThirstProvider;
 import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
@@ -40,6 +41,7 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -84,11 +86,14 @@ public class PolydipsiaMod {
             }).build());
 
     public PolydipsiaMod(FMLJavaModLoadingContext context) {
-        IEventBus modEventBus = context.getModEventBus();
 
+        IEventBus modEventBus = context.getModEventBus();
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         ModItems.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
+        ModFluids.BLOCKS.register(modEventBus);
+        ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so items get registered
@@ -100,7 +105,7 @@ public class PolydipsiaMod {
         MinecraftForge.EVENT_BUS.register(this);
 
         // Register the item to a creative tab
-        modEventBus.addListener(this::addCreative);
+//        modEventBus.addListener(this::addCreative);
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -119,11 +124,13 @@ public class PolydipsiaMod {
     }
 
     // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(ModItems.CAMELPACK_ITEM);
-        }
-    }
+//    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+////        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+////            event.accept(ModItems.CAMELPACK_ITEM);
+////            event.accept(ModItems.DIRTY_WATER_BUCKET.get());
+////
+////        }
+//    }
 
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
