@@ -1,6 +1,7 @@
 package com.github.bytewizard3.polydipsia.fluid;
 
 import com.github.bytewizard3.polydipsia.PolydipsiaMod;
+import com.github.bytewizard3.polydipsia.block.DirtyWaterBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -35,8 +36,10 @@ public class ModFluids {
             FLUIDS.register("flowing_dirty_water", () -> new FlowingDirtyWaterFluid(DIRTY_WATER_TYPE));
 
     public static final RegistryObject<LiquidBlock> DIRTY_WATER_BLOCK =
-            BLOCKS.register("dirty_water_block", () -> new LiquidBlock(
-                    DIRTY_WATER,
-                    BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()
-            ));
+            BLOCKS.register("dirty_water_block", () ->
+                    new DirtyWaterBlock(
+                            DIRTY_WATER.get(),
+                            BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()
+                    ));
+
 }
