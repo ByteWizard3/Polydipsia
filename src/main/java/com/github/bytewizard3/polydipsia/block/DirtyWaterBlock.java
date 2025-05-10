@@ -16,6 +16,5 @@ public class DirtyWaterBlock extends LiquidBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(LEVEL); // this adds the LEVEL property
     }
 }

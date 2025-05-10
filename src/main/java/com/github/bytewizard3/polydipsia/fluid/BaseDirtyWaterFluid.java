@@ -1,5 +1,6 @@
 package com.github.bytewizard3.polydipsia.fluid;
 
+import com.github.bytewizard3.polydipsia.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
@@ -60,7 +61,7 @@ public abstract class BaseDirtyWaterFluid extends FlowingFluid {
 
     @Override
     protected BlockState createLegacyBlock(FluidState state) {
-        return ModFluids.DIRTY_WATER_BLOCK.get().defaultBlockState().setValue(FlowingFluid.LEVEL, getLegacyLevel(state));
+        return ModBlocks.DIRTY_WATER_BLOCK.get().defaultBlockState().setValue(FlowingFluid.LEVEL, getLegacyLevel(state));
     }
 
     @Override
