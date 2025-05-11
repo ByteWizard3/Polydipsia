@@ -5,11 +5,14 @@ import com.github.bytewizard3.polydipsia.block.ModBlocks;
 import com.github.bytewizard3.polydipsia.damage.ModDamageSources;
 import com.github.bytewizard3.polydipsia.data.ClientThirstData;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
+import com.github.bytewizard3.polydipsia.heat.PlayerHeat;
+import com.github.bytewizard3.polydipsia.heat.PlayerHeatProvider;
 import com.github.bytewizard3.polydipsia.item.ModItems;
 import com.github.bytewizard3.polydipsia.thirst.PlayerThirst;
 import com.github.bytewizard3.polydipsia.thirst.PlayerThirstProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -19,6 +22,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -75,6 +79,10 @@ public class ModEvents {
             if (!event.getObject().getCapability(PlayerThirstProvider.PLAYER_THIRST).isPresent()) {
                 event.addCapability(new ResourceLocation(MODID, "properties"), new PlayerThirstProvider());
             }
+            if(!event.getObject().getCapability(PlayerHeatProvider.PLAYER_HEAT).isPresent()){
+                event.addCapability(new ResourceLocation(MODID, "player_heat"), new PlayerHeatProvider());
+            }
+
         }
     }
 
@@ -82,15 +90,40 @@ public class ModEvents {
     @SubscribeEvent
     public void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
         event.register(PlayerThirst.class);
-
+        event.register(PlayerHeat.class);
     }
-
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        event.getOriginal().getCapability(PlayerHeatProvider.PLAYER_HEAT).ifPresent(oldStore -> {
+            event.getEntity().getCapability(PlayerHeatProvider.PLAYER_HEAT).ifPresent(newStore -> {
+                newStore.copyFrom(oldStore);
+            });
+        });
+    }
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) return;
+
+        Player player = event.player;
+        Level level=event.player.level();
+        ServerLevel slevel = (ServerLevel) player.level();
+
+        Biome biome = level.getBiome(player.blockPosition()).value();
+        float temp = biome.getBaseTemperature();
+        boolean outside = isOutside(slevel, player);
+        player.getCapability(PlayerHeatProvider.PLAYER_HEAT).ifPresent(heat -> {
+            int change = 0;
+            if (outside) {
+                if (temp > 1.5f) change++;
+                else if (temp < 0.15f) change--;
+            }
+            heat.addHeat(change);
+        });
+
+
         if (event.side == LogicalSide.SERVER) {
             ClientThirstData.tickCount++;
             @NotNull LazyOptional<PlayerThirst> playerThirst=event.player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
-            Player player=event.player;
             playerThirst.ifPresent(thirst -> {
                 if (thirst.getThirst() > 0 && ClientThirstData.tickCount / 100 > 1) {
                     ClientThirstData.tickCount = 0;
@@ -123,7 +156,6 @@ public class ModEvents {
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,10,2));
             }
 
-            Level level=event.player.level();
             DamageSource damageSource = new ModDamageSources(
                     level.registryAccess())
                     .dehydration(player,null);
@@ -135,7 +167,15 @@ public class ModEvents {
             }
         }
     }
-
+    private static boolean isOutside(ServerLevel level, Player player) {
+        BlockPos pos = player.blockPosition();
+        for (int y = pos.getY(); y < level.getMaxBuildHeight(); y++) {
+            if (!level.isEmptyBlock(new BlockPos(pos.getX(), y, pos.getZ()))) {
+                return false;
+            }
+        }
+        return true;
+    }
     @SubscribeEvent
     public void onLivingHurt(LivingHurtEvent event) {
         if (event.getEntity() instanceof Sheep) {

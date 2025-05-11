@@ -1,54 +1,69 @@
 package com.github.bytewizard3.polydipsia.recipes;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DamagedItemRecipeSerializer implements RecipeSerializer<DamagedItemRecipe> {
 
     @Override
     public DamagedItemRecipe fromJson(ResourceLocation id, JsonObject json) {
         String group = GsonHelper.getAsString(json, "group", "");
+        CraftingBookCategory category = CraftingBookCategory.MISC;
+        if (json.has("category")) {
+            category = CraftingBookCategory.valueOf(GsonHelper.getAsString(json, "category").toUpperCase());
+        }
 
-        // Use CraftingBookCategory.valueOf to get category from the string
-        CraftingBookCategory category = CraftingBookCategory.valueOf(GsonHelper.getAsString(json, "category", "MISC").toUpperCase());
+        JsonArray pattern = GsonHelper.getAsJsonArray(json, "pattern");
+        JsonObject key = GsonHelper.getAsJsonObject(json, "key");
 
-        // Parse the pattern
-        JsonArray patternArray = GsonHelper.getAsJsonArray(json, "pattern");
-        int width = patternArray.size() > 0 ? patternArray.get(0).getAsString().length() : 0;
-        int height = patternArray.size();
+        // Parse key
+        Map<String, Ingredient> keyMap = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : key.entrySet()) {
+            if (entry.getKey().length() != 1 || entry.getKey().equals(" ")) {
+                throw new JsonSyntaxException("Invalid key entry: '" + entry.getKey() + "'");
+            }
+            keyMap.put(entry.getKey(), Ingredient.fromJson(entry.getValue()));
+        }
+        keyMap.put(" ", Ingredient.EMPTY); // space means empty slot
 
-        // Parse ingredients
+        // Convert pattern to ingredient list
+        String[] patternLines = new String[pattern.size()];
+        for (int i = 0; i < pattern.size(); i++) {
+            patternLines[i] = pattern.get(i).getAsString();
+        }
+
+        int width = patternLines[0].length();
+        int height = patternLines.length;
+
         NonNullList<Ingredient> ingredients = NonNullList.withSize(width * height, Ingredient.EMPTY);
-        for (int i = 0; i < height; i++) {
-            String row = patternArray.get(i).getAsString();
-            for (int j = 0; j < width; j++) {
-                char c = row.charAt(j);
-                // Assign specific ingredient based on the character
-                if (c == 'X') {
-                    ingredients.set(i * width + j, Ingredient.of(Items.LEATHER)); // Example: 'X' maps to leather
-                } else if (c == ' ') {
-                    ingredients.set(i * width + j, Ingredient.EMPTY);
-                }
+        for (int y = 0; y < height; y++) {
+            String line = patternLines[y];
+            for (int x = 0; x < width; x++) {
+                String keyChar = String.valueOf(line.charAt(x));
+                Ingredient ingredient = keyMap.getOrDefault(keyChar, Ingredient.EMPTY);
+                ingredients.set(x + y * width, ingredient);
             }
         }
 
-        // Parse the result item
-        JsonObject resultJson = GsonHelper.getAsJsonObject(json, "result");
-        ItemStack result = ShapedRecipe.itemStackFromJson(resultJson);
-
+        ItemStack result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
         boolean showNotification = GsonHelper.getAsBoolean(json, "show_notification", true);
 
         return new DamagedItemRecipe(id, group, category, width, height, ingredients, result, showNotification);
     }
+
 
     @Override
     public @Nullable DamagedItemRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
@@ -64,7 +79,6 @@ public class DamagedItemRecipeSerializer implements RecipeSerializer<DamagedItem
         }
 
         ItemStack result = buffer.readItem();
-
         return new DamagedItemRecipe(id, group, category, width, height, ingredients, result, showNotification);
     }
 

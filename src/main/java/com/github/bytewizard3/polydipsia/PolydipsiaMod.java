@@ -4,6 +4,7 @@ import com.github.bytewizard3.polydipsia.block.ModBlocks;
 import com.github.bytewizard3.polydipsia.event.ModEvents;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.fluidtypes.ModFluidTypes;
+import com.github.bytewizard3.polydipsia.overlay.HeatOverlay;
 import com.github.bytewizard3.polydipsia.recipes.ModRecipeSerializers;
 import com.github.bytewizard3.polydipsia.tab.ModCreativeTabs;
 import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
@@ -103,8 +104,8 @@ public class PolydipsiaMod {
         @SubscribeEvent
         public static void registerHuds(RegisterGuiOverlaysEvent event) {
             LOGGER.info("Registering Thirst Overlay");
-            ThirstOverlay guiOverlay = new ThirstOverlay();
-            event.registerAboveAll("thirst", guiOverlay);
+            event.registerAboveAll("thirst", new ThirstOverlay());
+            event.registerAboveAll("heat",new HeatOverlay());
         }
     }
 }
