@@ -18,8 +18,8 @@ public class ModBlocks {
 
     public static final RegistryObject<LiquidBlock> DIRTY_WATER_BLOCK =
             BLOCKS.register("dirty_water_block", () ->
-                    new DirtyWaterBlock(
-                            ModFluids.DIRTY_WATER.get(),
+                    new LiquidBlock(
+                            ModFluids.SOURCE_DIRTY_WATER,
                             BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()
                     ));
     public static final RegistryObject<LiquidBlock> SOAP_WATER_BLOCK = BLOCKS.register("soap_water_block",

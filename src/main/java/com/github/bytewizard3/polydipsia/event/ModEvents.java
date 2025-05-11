@@ -62,7 +62,12 @@ public class ModEvents {
             // if (clickedBlock.getBlock() == ModFluids.MUDDY_WATER_BLOCK.get()) { ... }
         }
     }
-
+    @SubscribeEvent
+    public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        if (event.getCrafting().getItem() == ModItems.CAMELPACK_ITEM.get()) {
+            event.getCrafting().setDamageValue(event.getCrafting().getMaxDamage());
+        }
+    }
 
     @SubscribeEvent
     public void onAttachCapabilitiesPlayer(AttachCapabilitiesEvent<Entity> event) {

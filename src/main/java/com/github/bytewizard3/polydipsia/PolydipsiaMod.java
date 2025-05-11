@@ -4,6 +4,7 @@ import com.github.bytewizard3.polydipsia.block.ModBlocks;
 import com.github.bytewizard3.polydipsia.event.ModEvents;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.fluidtypes.ModFluidTypes;
+import com.github.bytewizard3.polydipsia.recipes.ModRecipeSerializers;
 import com.github.bytewizard3.polydipsia.tab.ModCreativeTabs;
 import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
 import com.github.bytewizard3.polydipsia.item.ModItems;
@@ -55,7 +56,7 @@ public class PolydipsiaMod {
         ModFluidTypes.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
-
+        ModRecipeSerializers.SERIALIZERS.register(modEventBus);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new ModEvents());

@@ -36,7 +36,7 @@ public class ModItems {
             ITEMS.register("toxic_water_bottle", () -> new Item(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> DIRTY_WATER_BUCKET =
             ModItems.ITEMS.register("dirty_water_bucket", () ->
-                    new BucketItem(ModFluids.DIRTY_WATER, new Item.Properties()
+                    new BucketItem(ModFluids.SOURCE_DIRTY_WATER, new Item.Properties()
                             .craftRemainder(Items.BUCKET)
                             .stacksTo(1)));
     public static final RegistryObject<Item> SOAP_WATER_BUCKET = ITEMS.register("soap_water_bucket",
