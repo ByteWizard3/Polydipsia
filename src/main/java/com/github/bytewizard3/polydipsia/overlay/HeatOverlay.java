@@ -12,15 +12,13 @@ import java.text.DecimalFormat;
 
 public class HeatOverlay implements IGuiOverlay {
     private static final ResourceLocation HEAT_GRADIENT = new ResourceLocation(PolydipsiaMod.MODID,
-            "textures/thirst/heat_gradient.png"); // horizontal visible light gradient
-    private static final ResourceLocation TEMP_SYMBOL = new ResourceLocation(PolydipsiaMod.MODID,
-            "textures/thirst/heat_thermometer_empty.png");   // optional °C symbol texture
+            "textures/thirst/heat_gradient.png");
 
-    int COLOR_WHITE = 16777215;
+    int COLOR_WHITE = 0xFFFFFF;
 
-    // Configurable values
-    float minHeat = 0f;
-    float maxHeat = 100f;
+    // Heat configuration in Celsius
+    float minHeat = 30f;
+    float maxHeat = 45f;
     float idealMin = 36.5f;
     float idealMax = 37.5f;
 
@@ -31,31 +29,44 @@ public class HeatOverlay implements IGuiOverlay {
 
         int barWidth = 60;
         int barHeight = 7;
-        int dotSize = 2;
+        int markerHeight = 4;
+        int dotRadius = 3;
 
-        float currentHeat = 27f;//ClientHeatData.getPlayerHeat(); // You need this capability
+        float currentHeat = 32f;//ClientHeatData.getPlayerHeat();
+        float minHeat = 30f;
+        float maxHeat = 45f;
+        float idealMin = 36.5f;
+        float idealMax = 37.5f;
 
-        // Background gradient bar
+        // Draw the gradient background
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         guiGraphics.blit(HEAT_GRADIENT, xStart, yStart, 0, 0, barWidth, barHeight, barWidth, barHeight);
 
-        // Ideal range lines
+        // Draw ideal temperature marker lines (top + bottom)
         int idealMinX = xStart + (int)(((idealMin - minHeat) / (maxHeat - minHeat)) * barWidth);
         int idealMaxX = xStart + (int)(((idealMax - minHeat) / (maxHeat - minHeat)) * barWidth);
-        guiGraphics.fill(idealMinX, yStart - 1, idealMinX + 1, yStart + barHeight + 1, COLOR_WHITE);
-        guiGraphics.fill(idealMaxX, yStart - 1, idealMaxX + 1, yStart + barHeight + 1, COLOR_WHITE);
 
-        // Current heat indicator (dot)
+        int markerColor = 0xFFFFFFFF;
+
+        // Ideal min marker
+        guiGraphics.fill(idealMinX, yStart - markerHeight, idealMinX + 1, yStart, markerColor);
+        guiGraphics.fill(idealMinX, yStart + barHeight, idealMinX + 1, yStart + barHeight + markerHeight, markerColor);
+
+        // Ideal max marker
+        guiGraphics.fill(idealMaxX, yStart - markerHeight, idealMaxX + 1, yStart, markerColor);
+        guiGraphics.fill(idealMaxX, yStart + barHeight, idealMaxX + 1, yStart + barHeight + markerHeight, markerColor);
+
+        // Draw white circle representing current heat
         int currentX = xStart + (int)(((currentHeat - minHeat) / (maxHeat - minHeat)) * barWidth);
-        guiGraphics.fill(currentX - dotSize / 2, yStart - 2, currentX + dotSize / 2 + 1, yStart + barHeight + 2, COLOR_WHITE);
+        int centerY = yStart + barHeight / 2;
 
-        // Temperature label (text + symbol)
+        // Draw the white circle manually as a filled square with a circle look (simplified)
+        guiGraphics.fill(currentX - dotRadius, centerY - dotRadius, currentX + dotRadius, centerY + dotRadius, 0xFFFFFFFF);
+
+        // Draw the temperature text
         DecimalFormat df = new DecimalFormat("00.0");
-        int textX = xStart + barWidth + 10;
-        guiGraphics.drawString(gui.getFont(), df.format(currentHeat) + "°C", textX, yStart, COLOR_WHITE);
-
-        // Optional texture symbol
-        // guiGraphics.blit(TEMP_SYMBOL, textX + 30, yStart - 1, 0, 0, 8, 8, 8, 8);
+        guiGraphics.drawString(gui.getFont(), df.format(currentHeat) + "°C", xStart + barWidth + 10, yStart, 0xFFFFFFFF);
     }
+
 }
