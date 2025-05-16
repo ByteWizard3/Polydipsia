@@ -25,12 +25,12 @@ import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class BlazingPytherium extends FlowingFluid {
-    private static final FluidType FLUID_TYPE = ModFluidTypes.PYTHEREUM_WATER_FLUID_TYPE.get();
 
     @Override
     public FluidType getFluidType() {
-        return FLUID_TYPE;
+        return ModFluidTypes.PYTHEREUM_WATER_FLUID_TYPE.get();
     }
+
     @Override
     public Fluid getFlowing() {
         return ModFluids.BLAZING_PYTHERIUM_FLOWING.get(); // Replace with your registry
