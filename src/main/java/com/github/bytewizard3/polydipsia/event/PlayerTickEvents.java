@@ -1,8 +1,6 @@
 package com.github.bytewizard3.polydipsia.event;
 
-import com.github.bytewizard3.polydipsia.capabilities.heat.HeatHandler;
-import com.github.bytewizard3.polydipsia.capabilities.heat.PlayerHeat;
-import com.github.bytewizard3.polydipsia.capabilities.heat.PlayerHeatProvider;
+
 import com.github.bytewizard3.polydipsia.capabilities.thirst.PlayerThirst;
 import com.github.bytewizard3.polydipsia.capabilities.thirst.PlayerThirstProvider;
 import com.github.bytewizard3.polydipsia.capabilities.thirst.ThirstHandler;
@@ -36,7 +34,6 @@ public class PlayerTickEvents {
         if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) return;
         if (event.side == LogicalSide.SERVER) {
             ThirstHandler.tick(event.player);
-            HeatHandler.tick((ServerLevel) event.player.level(),event.player);
         }
     }
 

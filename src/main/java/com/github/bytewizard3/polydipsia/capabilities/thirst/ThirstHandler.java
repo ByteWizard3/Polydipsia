@@ -1,9 +1,6 @@
 package com.github.bytewizard3.polydipsia.capabilities.thirst;
 
 import com.github.bytewizard3.polydipsia.block.ModBlocks;
-import com.github.bytewizard3.polydipsia.capabilities.heat.PlayerHeatProvider;
-import com.github.bytewizard3.polydipsia.compatability.BlazingBlockTemp;
-import com.github.bytewizard3.polydipsia.compatability.PytheriumBlockTemp;
 import com.github.bytewizard3.polydipsia.data.ClientThirstData;
 import com.github.bytewizard3.polydipsia.item.ModItems;
 import com.github.bytewizard3.polydipsia.damage.ModDamageSources;
@@ -47,7 +44,6 @@ public class ThirstHandler {
                     player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
                         player.sendSystemMessage(Component.literal("currentPlayerThirst is " + thirst.getThirst()));
                     });
-                    BlockTempRegistry.registerFirst(new  BlazingBlockTemp());
                 } else {
                     player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
                         thirst.addThirst(10);

@@ -1,11 +1,9 @@
 package com.github.bytewizard3.polydipsia.event;
 
-import com.github.bytewizard3.polydipsia.capabilities.heat.PlayerHeat;
-import com.github.bytewizard3.polydipsia.capabilities.heat.PlayerHeatProvider;
+
 import com.github.bytewizard3.polydipsia.capabilities.thirst.PlayerThirst;
 import com.github.bytewizard3.polydipsia.capabilities.thirst.PlayerThirstProvider;
 import com.github.bytewizard3.polydipsia.capabilities.thirst.ThirstHandler;
-import com.github.bytewizard3.polydipsia.capabilities.heat.HeatHandler;
 import com.github.bytewizard3.polydipsia.data.ClientThirstData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -26,26 +24,22 @@ public class PlayerCapabilityEvents {
     public static void onAttachCapabilitiesPlayer(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof Player player) {
             ThirstHandler.attachCapability(event,player);
-            HeatHandler.attachCapability(event,player);
         }
     }
 
     @SubscribeEvent
     public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
         event.register(PlayerThirst.class);
-        event.register(PlayerHeat.class);
     }
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        HeatHandler.onPlayerClone(event.getOriginal(),event.getEntity());
         ThirstHandler.onPlayerClone(event.getOriginal(),event.getEntity());
     }
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         ThirstHandler.onPlayerJoin(event.getEntity());
-        HeatHandler.onPlayerJoin(event.getEntity());
 
     }
 }

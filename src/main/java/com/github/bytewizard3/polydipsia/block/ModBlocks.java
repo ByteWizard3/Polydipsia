@@ -23,33 +23,6 @@ public class ModBlocks {
                             ModFluids.SOURCE_DIRTY_WATER,
                             BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()
                     ));
-    public static final RegistryObject<LiquidBlock> SOAP_WATER_BLOCK = BLOCKS.register("soap_water_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_SOAP_WATER, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final RegistryObject<LiquidBlock> BLAZING_PYTHERIUM_BLOCK =
-            BLOCKS.register("blazing_pytherium",
-                    () -> new BlazingPytheriumBlock(
-                            ModFluids.BLAZING_PYTHERIUM_SOURCE,
-                            BlockBehaviour.Properties.copy(Blocks.LAVA)
-                                    .lightLevel(state -> 15)
-                                    .noCollission()
-                                    .randomTicks()
-                                    .strength(100.0F)
-                                    .noLootTable()
-                    )
-            );
-//    public static final RegistryObject<LiquidBlock> LAVA_SPICY_BLOCK = BLOCKS.register(
-//            "lava_spicy_block",
-//            () -> new SpicyLavaBlock(
-//                    // Ensuring proper reference to FluidInit's LAVA_SPICY_SOURCE
-//                    ModFluids.LAVA_SPICY_SOURCE,
-//                    BlockBehaviour.Properties.of()
-//                            .mapColor(MapColor.FIRE) // Fire-like color for the block
-//                            .replaceable() // Makes the block replaceable
-//                            .liquid() // Specifies it as a liquid block
-//                            .randomTicks()
-//                            .lightLevel(state -> 15) // Full light level
-//                            .pushReaction(PushReaction.DESTROY) // Specifies reaction to being pushed
-//            ));
 
     public static final RegistryObject<LiquidBlock> LAVA_SPICY_BLOCK = BLOCKS.register(
             "lava_spicy_block",

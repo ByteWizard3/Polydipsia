@@ -1,7 +1,6 @@
 package com.github.bytewizard3.polydipsia.event;
 
 import com.github.bytewizard3.polydipsia.block.ModBlocks;
-import com.github.bytewizard3.polydipsia.capabilities.heat.HeatHandler;
 import com.github.bytewizard3.polydipsia.capabilities.thirst.ThirstHandler;
 import com.github.bytewizard3.polydipsia.item.ModItems;
 import net.minecraft.core.BlockPos;

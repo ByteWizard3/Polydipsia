@@ -1,10 +1,7 @@
 package com.github.bytewizard3.polydipsia.event;
 
 import com.github.bytewizard3.polydipsia.PolydipsiaMod;
-import com.github.bytewizard3.polydipsia.compatability.PytheriumBlockTemp;
-import com.github.bytewizard3.polydipsia.fluid.BlazingPytherium;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
-import com.github.bytewizard3.polydipsia.overlay.HeatOverlay;
 import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
 import com.momosoftworks.coldsweat.api.registry.BlockTempRegistry;
 import net.minecraft.client.Minecraft;
@@ -26,9 +23,6 @@ public class ClientModEvents {
         // Some client setup code
         LOGGER.info("HELLO FROM CLIENT SETUP");
         LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_SOAP_WATER.get(), RenderType.translucent());
-        ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_SOAP_WATER.get(), RenderType.translucent());
-        BlockTempRegistry.register(new PytheriumBlockTemp());
     }
 
 
@@ -36,6 +30,5 @@ public class ClientModEvents {
     public static void registerHuds(RegisterGuiOverlaysEvent event) {
         LOGGER.info("Registering Thirst Overlay");
         event.registerAboveAll("thirst", new ThirstOverlay());
-        event.registerAboveAll("heat",new HeatOverlay());
     }
 }
