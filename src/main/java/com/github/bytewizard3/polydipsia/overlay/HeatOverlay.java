@@ -1,6 +1,7 @@
 package com.github.bytewizard3.polydipsia.overlay;
 
 import com.github.bytewizard3.polydipsia.PolydipsiaMod;
+import com.github.bytewizard3.polydipsia.data.ClientHeatData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -31,7 +32,7 @@ public class HeatOverlay implements IGuiOverlay {
         float minHeat = 30f;
         float maxHeat = 45f;
         float idealTemp = 37.5f;
-        float currentHeat = 40f; // Replace with actual dynamic value if needed
+        float currentHeat = ClientHeatData.getPlayerHeat(); // Replace with actual dynamic value if needed
 
 // Draw the background gradient
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

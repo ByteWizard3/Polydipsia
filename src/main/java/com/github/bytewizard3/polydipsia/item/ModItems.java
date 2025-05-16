@@ -42,7 +42,7 @@ public class ModItems {
     public static final RegistryObject<Item> SOAP_WATER_BUCKET = ITEMS.register("soap_water_bucket",
             () -> new BucketItem(ModFluids.SOURCE_SOAP_WATER,
                     new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
-
-
-
+    public static final RegistryObject<Item> BLAZING_PYTHERIUM_BUCKET = ITEMS.register("pytherium_bucket",
+            () -> new BucketItem(ModFluids.BLAZING_PYTHERIUM_SOURCE,
+                    new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 }
