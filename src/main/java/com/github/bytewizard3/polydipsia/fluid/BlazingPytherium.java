@@ -51,6 +51,7 @@ public abstract class BlazingPytherium extends FlowingFluid {
         return false; // Customize if needed
     }
 
+
     @Override
     protected void beforeDestroyingBlock(LevelAccessor level, BlockPos pos, BlockState state) {
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;

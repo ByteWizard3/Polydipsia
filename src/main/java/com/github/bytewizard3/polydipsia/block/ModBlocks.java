@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -36,9 +37,34 @@ public class ModBlocks {
                                     .noLootTable()
                     )
             );
+//    public static final RegistryObject<LiquidBlock> LAVA_SPICY_BLOCK = BLOCKS.register(
+//            "lava_spicy_block",
+//            () -> new SpicyLavaBlock(
+//                    // Ensuring proper reference to FluidInit's LAVA_SPICY_SOURCE
+//                    ModFluids.LAVA_SPICY_SOURCE,
+//                    BlockBehaviour.Properties.of()
+//                            .mapColor(MapColor.FIRE) // Fire-like color for the block
+//                            .replaceable() // Makes the block replaceable
+//                            .liquid() // Specifies it as a liquid block
+//                            .randomTicks()
+//                            .lightLevel(state -> 15) // Full light level
+//                            .pushReaction(PushReaction.DESTROY) // Specifies reaction to being pushed
+//            ));
 
-
-
+    public static final RegistryObject<LiquidBlock> LAVA_SPICY_BLOCK = BLOCKS.register(
+            "lava_spicy_block",
+            () -> new SpicyLavaBlock(
+                    // Ensuring proper reference to FluidInit's LAVA_SPICY_SOURCE
+                    ModFluids.LAVA_SPICY_SOURCE,
+                    BlockBehaviour.Properties.copy(Blocks.LAVA)
+                            .mapColor(MapColor.FIRE) // Fire-like color for the block
+                            .replaceable() // Makes the block replaceable
+                            .liquid() // Specifies it as a liquid block
+                            .randomTicks()
+                            .lightLevel(state -> 15) // Full light level
+                            .pushReaction(PushReaction.DESTROY)
+                    // Specifies reaction to being pushed
+            ));
 
 
 }

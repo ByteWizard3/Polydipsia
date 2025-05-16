@@ -27,6 +27,7 @@ public class ModCreativeTabs {
                     output.accept(ModItems.DIRTY_WATER_BUCKET.get());
                     output.accept(ModItems.CAMELPACK_ITEM.get());
                     output.accept(ModItems.SOAP_WATER_BUCKET.get());
+                    output.accept(ModItems.LAVA_SPICY_BUCKET.get());
                     // Add more items here
                 })
                 .build()

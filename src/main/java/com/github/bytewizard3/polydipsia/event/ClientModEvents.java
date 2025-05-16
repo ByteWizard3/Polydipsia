@@ -1,9 +1,12 @@
 package com.github.bytewizard3.polydipsia.event;
 
 import com.github.bytewizard3.polydipsia.PolydipsiaMod;
+import com.github.bytewizard3.polydipsia.compatability.PytheriumBlockTemp;
+import com.github.bytewizard3.polydipsia.fluid.BlazingPytherium;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.overlay.HeatOverlay;
 import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
+import com.momosoftworks.coldsweat.api.registry.BlockTempRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -25,7 +28,7 @@ public class ClientModEvents {
         LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_SOAP_WATER.get(), RenderType.translucent());
         ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_SOAP_WATER.get(), RenderType.translucent());
-
+        BlockTempRegistry.register(new PytheriumBlockTemp());
     }
 
 

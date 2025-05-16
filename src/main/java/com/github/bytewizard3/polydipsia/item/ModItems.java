@@ -45,4 +45,15 @@ public class ModItems {
     public static final RegistryObject<Item> BLAZING_PYTHERIUM_BUCKET = ITEMS.register("pytherium_bucket",
             () -> new BucketItem(ModFluids.BLAZING_PYTHERIUM_SOURCE,
                     new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final RegistryObject<Item> LAVA_SPICY_BUCKET = ITEMS.register(
+            "lava_spicy_bucket",
+            () -> new BucketItem(
+                    // Ensure proper supplier reference to LAVA_SPICY_SOURCE
+                    () -> ModFluids.LAVA_SPICY_SOURCE.get(),
+                    new Item.Properties()
+                            .craftRemainder(Items.BUCKET) // Returns an empty bucket after use
+                            .stacksTo(1) // Maximum stack size of 1
+            )
+    );
+
 }

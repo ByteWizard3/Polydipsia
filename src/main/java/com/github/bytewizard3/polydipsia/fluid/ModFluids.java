@@ -39,6 +39,12 @@ public static final RegistryObject<FlowingFluid> BLAZING_PYTHERIUM_SOURCE = FLUI
     public static final RegistryObject<FlowingFluid> BLAZING_PYTHERIUM_FLOWING = FLUIDS.register("blazing_pytherium_flowing",
             BlazingPytherium.Flowing::new);
 
+    public static final RegistryObject<FlowingFluid> LAVA_SPICY_SOURCE = FLUIDS.register(
+            "lava_spicy",
+            () -> new ForgeFlowingFluid.Source(ModFluids.SPICY_LAVA_PROPERTIES));
+    public static final RegistryObject<Fluid> LAVA_SPICY_FLOWING = FLUIDS.register(
+            "lava_spicy_flowing",
+            () -> new ForgeFlowingFluid.Flowing(ModFluids.SPICY_LAVA_PROPERTIES));
     //Properties
     public static final ForgeFlowingFluid.Properties DIRTY_WATER_FLUID_PROPERTIES = new ForgeFlowingFluid.Properties(
             ModFluidTypes.DIRTY_WATER_TYPE,  // FluidType
@@ -50,6 +56,20 @@ public static final RegistryObject<FlowingFluid> BLAZING_PYTHERIUM_SOURCE = FLUI
             ModFluidTypes.SOAP_WATER_FLUID_TYPE, SOURCE_SOAP_WATER, FLOWING_SOAP_WATER)
             .slopeFindDistance(2).levelDecreasePerBlock(2).block(ModBlocks.SOAP_WATER_BLOCK)
             .bucket(ModItems.SOAP_WATER_BUCKET);
+
+    public static final ForgeFlowingFluid.Properties SPICY_LAVA_PROPERTIES= new ForgeFlowingFluid.Properties(
+                ModFluidTypes.LAVA_SPICY_TYPE,
+                LAVA_SPICY_SOURCE,
+                LAVA_SPICY_FLOWING)
+                .block(ModBlocks.LAVA_SPICY_BLOCK)
+                .bucket(ModItems.LAVA_SPICY_BUCKET)
+                .explosionResistance(1000F)
+                .tickRate(120)
+                .slopeFindDistance(1)
+                .levelDecreasePerBlock(1);
+            ;
+
+
 //    public static final ForgeFlowingFluid.Properties PYTHERIUM_PROPERTIES = new ForgeFlowingFluid.Properties(
 //            ModFluidTypes.PYTHEREUM_WATER_FLUID_TYPE,
 //            ModFluids.BLAZING_PYTHERIUM_SOURCE,

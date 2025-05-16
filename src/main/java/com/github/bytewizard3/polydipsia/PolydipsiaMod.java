@@ -1,23 +1,36 @@
 package com.github.bytewizard3.polydipsia;
 
 import com.github.bytewizard3.polydipsia.block.ModBlocks;
+import com.github.bytewizard3.polydipsia.compatability.BlazingBlockTemp;
+import com.github.bytewizard3.polydipsia.fluid.ModFluidInteractionRegistrar;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.fluidtypes.ModFluidTypes;
 import com.github.bytewizard3.polydipsia.recipes.ModRecipeSerializers;
 import com.github.bytewizard3.polydipsia.tab.ModCreativeTabs;
 import com.github.bytewizard3.polydipsia.item.ModItems;
 import com.mojang.logging.LogUtils;
+import com.momosoftworks.coldsweat.api.registry.BlockTempRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidInteractionRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
+
+import java.util.Random;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(PolydipsiaMod.MODID)
@@ -59,9 +72,54 @@ public class PolydipsiaMod {
         LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+        event.enqueueWork(() -> {
+            BlockTempRegistry.register(new BlazingBlockTemp());
+        });
+
+        // Add fluid interactions
+        FluidInteractionRegistry.addInteraction(ModFluidTypes.LAVA_SPICY_TYPE.get(),
+                new FluidInteractionRegistry.InteractionInformation(
+                        ForgeMod.WATER_TYPE.get(),
+                        Blocks.STONE.defaultBlockState()
+                )
+        );
+
+        FluidInteractionRegistry.addInteraction(ModFluidTypes.LAVA_SPICY_TYPE.get(),
+                new FluidInteractionRegistry.InteractionInformation(
+                        (level, currentPos, relativePos, currentState) -> level.getBlockState(relativePos).is(Blocks.SAND),
+                        Blocks.GLASS.defaultBlockState()
+                )
+        );
     }
 
-
+//    @SubscribeEvent
+//    public void onLevelTick(TickEvent.LevelTickEvent event) {
+//        if (event.phase == TickEvent.Phase.END && !event.level.isClientSide && event.level instanceof ServerLevel level) {
+//            spreadFireAroundSpicyLava(level);
+//        }
+//    }
+//
+//    private void spreadFireAroundSpicyLava(ServerLevel level) {
+//        Random random = new Random();
+//
+//        // Iterate through all positions within a range of spicy lava
+//        for (ServerPlayer player : level.getPlayers(player -> true)) {
+//            BlockPos playerPos = player.blockPosition();
+//            BlockPos.betweenClosedStream(playerPos.offset(-32, -16, -32), playerPos.offset(32, 16, 32))
+//                    .filter(pos -> level.getBlockState(pos).getBlock() == ModBlocks.LAVA_SPICY_BLOCK.get())
+//                    .forEach(pos -> {
+//                        for (BlockPos nearbyPos : BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))) {
+//                            BlockState nearby = level.getBlockState(nearbyPos);
+//                            if (nearby.isAir() || nearby.getBlock() == Blocks.FIRE) {
+//                                if (level.random.nextFloat() < 0.3f) {
+//                                    level.setBlock(nearbyPos, Blocks.FIRE.defaultBlockState(), 11);
+//                                }
+//                            }
+//                        }
+//                    });
+//        }
+//
+//    }
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
