@@ -24,16 +24,19 @@ public class ModBlocks {
                     ));
     public static final RegistryObject<LiquidBlock> SOAP_WATER_BLOCK = BLOCKS.register("soap_water_block",
             () -> new LiquidBlock(ModFluids.SOURCE_SOAP_WATER, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final RegistryObject<LiquidBlock> BLAZING_PYTHERIUM_BLOCK = BLOCKS.register("blazing_pytherium",
-            () -> new LiquidBlock(
-                    ModFluids.BLAZING_PYTHERIUM_SOURCE,
-                    BlockBehaviour.Properties
-                            .copy(Blocks.LAVA)
-                            .noCollission()
-                            .strength(100.0F)
-                            .lightLevel(state -> 10)
-                            .randomTicks() // ✅ triggers your fluid's randomTick()
-            ));
+    public static final RegistryObject<LiquidBlock> BLAZING_PYTHERIUM_BLOCK =
+            BLOCKS.register("blazing_pytherium",
+                    () -> new BlazingPytheriumBlock(
+                            ModFluids.BLAZING_PYTHERIUM_SOURCE,
+                            BlockBehaviour.Properties.copy(Blocks.LAVA)
+                                    .lightLevel(state -> 15)
+                                    .noCollission()
+                                    .randomTicks()
+                                    .strength(100.0F)
+                                    .noLootTable()
+                    )
+            );
+
 
 
 
