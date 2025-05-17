@@ -1,7 +1,6 @@
 package com.github.bytewizard3.polydipsia;
 
 import com.github.bytewizard3.polydipsia.block.ModBlocks;
-import com.github.bytewizard3.polydipsia.compatability.BlazingBlockTemp;
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.fluidtypes.ModFluidTypes;
 import com.github.bytewizard3.polydipsia.recipes.ModRecipeSerializers;
@@ -63,9 +62,7 @@ public class PolydipsiaMod {
         LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
-        event.enqueueWork(() -> {
-            BlockTempRegistry.register(new BlazingBlockTemp());
-        });
+
 
         // Add fluid interactions
         FluidInteractionRegistry.addInteraction(ModFluidTypes.LAVA_SPICY_TYPE.get(),
