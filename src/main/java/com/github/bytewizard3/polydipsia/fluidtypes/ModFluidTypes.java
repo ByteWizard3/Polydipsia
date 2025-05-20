@@ -95,7 +95,7 @@ public class ModFluidTypes {
 
 
     public static final RegistryObject<FluidType> DIRTY_WATER_TYPE = FLUID_TYPES.register(
-            "lava_spicy",
+            "dirty_water",
             () -> new FluidType(FluidType.Properties.create()
                     .canSwim(false)
                     .canDrown(false)

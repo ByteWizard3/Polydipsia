@@ -26,16 +26,9 @@ public class ModCreativeTabs {
                     output.accept(ModItems.TOXIC_WATER_BOTTLE.get());
                     output.accept(ModItems.DIRTY_WATER_BUCKET.get());
                     output.accept(ModItems.CAMELPACK_ITEM.get());
-                    output.accept(ModItems.SOAP_WATER_BUCKET.get());
                     output.accept(ModItems.LAVA_SPICY_BUCKET.get());
                     // Add more items here
                 })
                 .build()
         );
-    public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> ModItems.EXAMPLE_ITEM.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                output.accept(ModItems.EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
-            }).build());
 }
