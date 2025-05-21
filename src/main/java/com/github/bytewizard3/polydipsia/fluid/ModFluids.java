@@ -49,7 +49,7 @@ public class ModFluids {
                 .block(ModBlocks.LAVA_SPICY_BLOCK)
                 .bucket(ModItems.LAVA_SPICY_BUCKET)
                 .explosionResistance(1000F)
-                .tickRate(120)
+                .tickRate(60)
                 .slopeFindDistance(1)
                 .levelDecreasePerBlock(1);
 

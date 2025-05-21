@@ -2,6 +2,7 @@ package com.github.bytewizard3.polydipsia.item;
 
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.item.custom.CamelpackItem;
+import com.github.bytewizard3.polydipsia.item.custom.DirtyWaterBottleItem;
 import com.github.bytewizard3.polydipsia.tab.ModCreativeTabs;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
