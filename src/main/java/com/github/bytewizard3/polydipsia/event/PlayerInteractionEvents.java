@@ -49,19 +49,20 @@ public class PlayerInteractionEvents {
         Player player=event.getEntity();
         InteractionHand hand=event.getHand();
         ItemStack stack = player.getItemInHand(hand);
-        BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
+        ItemStack heldItem = event.getEntity().getMainHandItem();
+        String itemName = heldItem.isEmpty() ? "empty" : heldItem.getItem().builtInRegistryHolder().key().location().toString();
+
 
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             BlockPos pos = hitResult.getBlockPos();
             BlockState state = event.getLevel().getBlockState(pos);
             Block block = state.getBlock();
-            ItemStack heldItem = event.getEntity().getMainHandItem();
-            //ItemStack heldItem = player.getItemInHand(hand);
-
             String blockName = block.builtInRegistryHolder().key().location().toString();
-            String itemName = heldItem.isEmpty() ? "empty" : heldItem.getItem().builtInRegistryHolder().key().location().toString();
             Fluid fluid = level.getFluidState(pos).getType();
             log.info("Right click hit: Block={} Item={}", blockName, itemName);
+
+
 
             // Example: if it's water
             if (fluid == ModFluids.SOURCE_DIRTY_WATER.get() || fluid == ModFluids.FLOWING_DIRTY_WATER.get()) {
