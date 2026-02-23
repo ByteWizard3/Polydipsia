@@ -40,8 +40,8 @@ pipeline {
     
     post {
         always {
-            // Clean up workspace after build to save space
-            cleanWs()
+            // Clean up workspace after build to save space, but keep the gradle cache persistent
+            cleanWs(deleteDirs: true, patterns: [[pattern: '.gradle', type: 'EXCLUDE']])
         }
         success {
             echo "Build finished successfully! Artifacts are available in the Jenkins UI."
