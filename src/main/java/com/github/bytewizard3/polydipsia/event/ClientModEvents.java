@@ -1,12 +1,11 @@
 package com.github.bytewizard3.polydipsia.event;
 
 import com.github.bytewizard3.polydipsia.PolydipsiaMod;
-import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.overlay.ThirstOverlay;
-import com.momosoftworks.coldsweat.api.registry.BlockTempRegistry;
+import com.github.bytewizard3.polydipsia.screen.ModMenuTypes;
+import com.github.bytewizard3.polydipsia.screen.WaterPurifierScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,8 +22,9 @@ public class ClientModEvents {
         // Some client setup code
         LOGGER.info("HELLO FROM CLIENT SETUP");
         LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-    }
 
+        MenuScreens.register(ModMenuTypes.WATER_PURIFIER_MENU.get(), WaterPurifierScreen::new);
+    }
 
     @SubscribeEvent
     public static void registerHuds(RegisterGuiOverlaysEvent event) {

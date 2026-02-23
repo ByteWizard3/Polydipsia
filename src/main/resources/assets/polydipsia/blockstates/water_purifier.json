@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "polydipsia:block/water_purifier" },
+    "facing=east":  { "model": "polydipsia:block/water_purifier", "y": 90 },
+    "facing=south": { "model": "polydipsia:block/water_purifier", "y": 180 },
+    "facing=west":  { "model": "polydipsia:block/water_purifier", "y": 270 }
+  }
+}

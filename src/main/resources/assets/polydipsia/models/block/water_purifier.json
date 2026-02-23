@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "filter": "minecraft:block/spruce_planks",
+    "top": "polydipsia:block/water_purifier_top",
+    "front": "polydipsia:block/water_purifier_front",
+    "side": "polydipsia:block/water_purifier_side"
+  }
+}

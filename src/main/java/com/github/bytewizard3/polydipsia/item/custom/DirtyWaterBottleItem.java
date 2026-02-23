@@ -1,7 +1,10 @@
 package com.github.bytewizard3.polydipsia.item.custom;
 
 import com.github.bytewizard3.polydipsia.fluid.ModFluids;
+import com.github.bytewizard3.polydipsia.fluid.ModFluids;
 import com.github.bytewizard3.polydipsia.item.ModItems;
+import com.github.bytewizard3.polydipsia.capabilities.thirst.ThirstHandler;
+import com.github.bytewizard3.polydipsia.water.WaterProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -9,7 +12,10 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BottleItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.level.ClipContext;
@@ -26,49 +32,70 @@ public class DirtyWaterBottleItem extends BottleItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        System.out.println("Using DirtyWaterBottleItem");
 
-        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-        if (hit.getType() != HitResult.Type.BLOCK) {
-            System.out.println("Hit type is not a block: " + hit.getType());
-            return InteractionResultHolder.pass(stack);
-        }
-
-        BlockPos pos = hit.getBlockPos();
-        System.out.println("Hit block position: " + pos);
-
-        if (!level.mayInteract(player, pos)) {
-            System.out.println("Player cannot interact with block at position: " + pos);
-            return InteractionResultHolder.pass(stack);
-        }
-
-        var fluid = level.getFluidState(pos).getType();
-        System.out.println("Fluid at position: " + fluid);
-
-        if (fluid == ModFluids.SOURCE_DIRTY_WATER.get()) {
-            System.out.println("Matched SOURCE_DIRTY_WATER");
-        } else if (fluid == ModFluids.FLOWING_DIRTY_WATER.get()) {
-            System.out.println("Matched FLOWING_DIRTY_WATER");
-        } else {
-            System.out.println("Fluid is not dirty water");
-        }
-
-        if (fluid == ModFluids.SOURCE_DIRTY_WATER.get() || fluid == ModFluids.FLOWING_DIRTY_WATER.get()) {
-            System.out.println("Filling Dirty Water Bottle");
-
-            level.playSound(player, player.getX(), player.getY(), player.getZ(),
-                    SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
-            level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-
-            ItemStack result = new ItemStack(ModItems.DIRTY_WATER_BOTTLE.get());
-
-            return InteractionResultHolder.sidedSuccess(
-                    ItemUtils.createFilledResult(stack, player, result),
-                    level.isClientSide()
-            );
-        }
-
-        return InteractionResultHolder.pass(stack);
+        // If they are sneaking or something else that bypasses filling?
+        // We actually want them to drink it, so we override finishUsingItem.
+        return ItemUtils.startUsingInstantly(level, player, hand);
     }
 
+    @Override
+    public int getUseDuration(ItemStack pStack) {
+        return 32; // Standard drinking time
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving) {
+        // Drink the item
+        Player player = pEntityLiving instanceof Player ? (Player) pEntityLiving : null;
+        if (player instanceof Player && !pLevel.isClientSide()) {
+            ThirstHandler.handleDrink(player, WaterProperties.DIRTY);
+        }
+
+        if (player != null) {
+            player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(this));
+            if (!player.getAbilities().instabuild) {
+                pStack.shrink(1);
+            }
+        }
+
+        if (pStack.isEmpty()) {
+            return new ItemStack(net.minecraft.world.item.Items.GLASS_BOTTLE);
+        } else {
+            if (player != null && !player.getAbilities().instabuild) {
+                ItemStack glassBottle = new ItemStack(net.minecraft.world.item.Items.GLASS_BOTTLE);
+                if (!player.getInventory().add(glassBottle)) {
+                    player.drop(glassBottle, false);
+                }
+            }
+            return pStack;
+        }
+    }
+
+    @Override
+    public void appendHoverText(ItemStack pStack, @org.jetbrains.annotations.Nullable Level pLevel,
+            java.util.List<net.minecraft.network.chat.Component> pTooltipComponents,
+            net.minecraft.world.item.TooltipFlag pIsAdvanced) {
+        if (pStack.hasTag()) {
+            net.minecraft.nbt.CompoundTag tag = pStack.getTag();
+            if (tag.contains("Saltiness")) {
+                pTooltipComponents
+                        .add(net.minecraft.network.chat.Component.literal("Saltiness: " + tag.getInt("Saltiness") + "%")
+                                .withStyle(net.minecraft.ChatFormatting.WHITE));
+            }
+            if (tag.contains("Muddiness")) {
+                pTooltipComponents
+                        .add(net.minecraft.network.chat.Component.literal("Muddiness: " + tag.getInt("Muddiness") + "%")
+                                .withStyle(net.minecraft.ChatFormatting.DARK_RED));
+            }
+            if (tag.contains("Pollution")) {
+                pTooltipComponents
+                        .add(net.minecraft.network.chat.Component.literal("Pollution: " + tag.getInt("Pollution") + "%")
+                                .withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
+            }
+        } else {
+            pTooltipComponents.add(net.minecraft.network.chat.Component.literal("Unknown Properties")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
+        super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
+    }
 }

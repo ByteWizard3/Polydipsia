@@ -9,7 +9,9 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -43,16 +45,18 @@ public class PlayerInteractionEvents {
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getLevel().isClientSide()) return;
-        if (event.getHand() != InteractionHand.MAIN_HAND) return;
-        Level level=event.getLevel();
-        Player player=event.getEntity();
-        InteractionHand hand=event.getHand();
+        if (event.getLevel().isClientSide())
+            return;
+        if (event.getHand() != InteractionHand.MAIN_HAND)
+            return;
+        Level level = event.getLevel();
+        Player player = event.getEntity();
+        InteractionHand hand = event.getHand();
         ItemStack stack = player.getItemInHand(hand);
         BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         ItemStack heldItem = event.getEntity().getMainHandItem();
-        String itemName = heldItem.isEmpty() ? "empty" : heldItem.getItem().builtInRegistryHolder().key().location().toString();
-
+        String itemName = heldItem.isEmpty() ? "empty"
+                : heldItem.getItem().builtInRegistryHolder().key().location().toString();
 
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             BlockPos pos = hitResult.getBlockPos();
@@ -62,7 +66,9 @@ public class PlayerInteractionEvents {
             Fluid fluid = level.getFluidState(pos).getType();
             log.info("Right click hit: Block={} Item={}", blockName, itemName);
 
-
+            if (state.getFluidState().isSource()) {
+                log.info("Fluid Clicked");
+            }
 
             // Example: if it's water
             if (fluid == ModFluids.SOURCE_DIRTY_WATER.get() || fluid == ModFluids.FLOWING_DIRTY_WATER.get()) {
@@ -80,13 +86,26 @@ public class PlayerInteractionEvents {
                 event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide()));
 
                 ThirstHandler.dirtyWaterRightClick(event); // still call your handler
-            }
-            if (state.getFluidState().isSource()) {
-                log.info("Fluid Clicked");
+            } else if (fluid == Fluids.WATER || fluid == Fluids.FLOWING_WATER) {
+                if (itemName.equals("minecraft:glass_bottle")) {
+                    boolean isOcean = level.getBiome(pos).is(BiomeTags.IS_OCEAN);
+                    if (isOcean) {
+                        log.info("Player right-clicked ocean water");
+                        level.playSound(player, player.getX(), player.getY(), player.getZ(),
+                                SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                        level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
+
+                        ItemStack result = new ItemStack(ModItems.SALTY_WATER_BOTTLE.get());
+                        ItemStack filled = ItemUtils.createFilledResult(heldItem, player, result);
+
+                        player.setItemInHand(hand, filled);
+                        event.setCanceled(true);
+                        event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide()));
+                    }
+                }
             }
         }
     }
-
 
     @SubscribeEvent
     public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
@@ -94,20 +113,20 @@ public class PlayerInteractionEvents {
             event.getCrafting().setDamageValue(event.getCrafting().getMaxDamage());
         }
     }
+
     protected static BlockHitResult getPlayerPOVHitResult(Level pLevel, Player pPlayer, ClipContext.Fluid pFluidMode) {
         float f = pPlayer.getXRot();
         float f1 = pPlayer.getYRot();
         Vec3 vec3 = pPlayer.getEyePosition();
-        float f2 = Mth.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f3 = Mth.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f4 = -Mth.cos(-f * ((float)Math.PI / 180F));
-        float f5 = Mth.sin(-f * ((float)Math.PI / 180F));
+        float f2 = Mth.cos(-f1 * ((float) Math.PI / 180F) - (float) Math.PI);
+        float f3 = Mth.sin(-f1 * ((float) Math.PI / 180F) - (float) Math.PI);
+        float f4 = -Mth.cos(-f * ((float) Math.PI / 180F));
+        float f5 = Mth.sin(-f * ((float) Math.PI / 180F));
         float f6 = f3 * f4;
         float f7 = f2 * f4;
         double d0 = pPlayer.getBlockReach();
-        Vec3 vec31 = vec3.add((double)f6 * d0, (double)f5 * d0, (double)f7 * d0);
+        Vec3 vec31 = vec3.add((double) f6 * d0, (double) f5 * d0, (double) f7 * d0);
         return pLevel.clip(new ClipContext(vec3, vec31, ClipContext.Block.OUTLINE, pFluidMode, pPlayer));
     }
-
 
 }

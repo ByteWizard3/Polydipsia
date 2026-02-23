@@ -1,8 +1,0 @@
-{
-  "parent": "forge:item/bucket",
-  "fluid": "polydipsia:lava_spicy",
-  "loader": "forge:fluid_container",
-  "textures": {
-    "base": "polydipsia:item/lava_spicy_bucket_drip"
-  }
-}

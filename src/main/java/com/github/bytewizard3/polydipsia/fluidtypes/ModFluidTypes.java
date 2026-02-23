@@ -21,15 +21,11 @@ import java.util.function.Supplier;
 import static com.github.bytewizard3.polydipsia.PolydipsiaMod.MODID;
 
 public class ModFluidTypes {
-    public static final DeferredRegister<FluidType> FLUID_TYPES =
-            DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, MODID);
-    public static final RegistryObject<FluidType> LAVA_SPICY_TYPE = FLUID_TYPES.register(
-            "lava_spicy",
-            FireLavaFluidType::new);
-    public static final RegistryObject<FluidType> DIRTY_WATER_TYPE = FLUID_TYPES.register(
-            "dirty_water",
-            DirtyFluidType::new);
+        public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister
+                        .create(ForgeRegistries.Keys.FLUID_TYPES, MODID);
 
-
+        public static final RegistryObject<FluidType> DIRTY_WATER_TYPE = FLUID_TYPES.register(
+                        "dirty_water",
+                        DirtyFluidType::new);
 
 }

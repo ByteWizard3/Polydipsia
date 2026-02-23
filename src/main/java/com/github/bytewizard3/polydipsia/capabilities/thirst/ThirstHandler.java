@@ -9,10 +9,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import com.github.bytewizard3.polydipsia.water.WaterProperties;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Sheep;
@@ -29,18 +32,21 @@ import org.jetbrains.annotations.NotNull;
 import static com.github.bytewizard3.polydipsia.PolydipsiaMod.MODID;
 
 public class ThirstHandler {
-    public static void onDeath(Player player){
-        @NotNull LazyOptional<PlayerThirst> playerThirst = player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
+    public static void onDeath(Player player) {
+        @NotNull
+        LazyOptional<PlayerThirst> playerThirst = player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
         playerThirst.ifPresent(thirst -> {
             thirst.addThirst(100);
             ClientThirstData.set(thirst.getThirst());
         });
     }
-    public static void sheepHurt(Entity source,Entity target){
+
+    public static void sheepHurt(Entity source, Entity target) {
         if (target instanceof Sheep) {
             if (source instanceof Player player) {
                 if (player.getMainHandItem().getItem() == Items.BEEF) {
-                    player.sendSystemMessage(Component.literal(player.getName().getString() + " hurt a Sheep with BEEF! But why?"));
+                    player.sendSystemMessage(
+                            Component.literal(player.getName().getString() + " hurt a Sheep with BEEF! But why?"));
                     player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
                         player.sendSystemMessage(Component.literal("currentPlayerThirst is " + thirst.getThirst()));
                     });
@@ -54,11 +60,14 @@ public class ThirstHandler {
             }
         }
     }
+
     public static void tick(Player player) {
         Level level = player.level();
-        if (level.isClientSide) return;
+        if (level.isClientSide)
+            return;
         ClientThirstData.tickCount++;
-        @NotNull LazyOptional<PlayerThirst> playerThirst = player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
+        @NotNull
+        LazyOptional<PlayerThirst> playerThirst = player.getCapability(PlayerThirstProvider.PLAYER_THIRST);
 
         playerThirst.ifPresent(thirst -> {
             if (thirst.getThirst() > 0 && ClientThirstData.tickCount / 100 > 1) {
@@ -90,11 +99,12 @@ public class ThirstHandler {
         }
     }
 
-    public static void attachCapability(AttachCapabilitiesEvent<Entity> event,Player player) {
+    public static void attachCapability(AttachCapabilitiesEvent<Entity> event, Player player) {
         if (!player.getCapability(PlayerThirstProvider.PLAYER_THIRST).isPresent()) {
             event.addCapability(new ResourceLocation(MODID, "properties"), new PlayerThirstProvider());
         }
     }
+
     public static void onPlayerClone(Player original, Player player) {
         original.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(oldStore -> {
             player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(newStore -> {
@@ -126,10 +136,37 @@ public class ThirstHandler {
             }
         }
     }
+
     private static void consumeBottleAndGive(Player player, ItemStack held, ItemStack newBottle) {
         held.shrink(1);
         if (!player.addItem(newBottle)) {
             player.drop(newBottle, false);
         }
+    }
+
+    public static void handleDrink(Player player, WaterProperties properties) {
+        if (player.level().isClientSide)
+            return;
+
+        player.getCapability(PlayerThirstProvider.PLAYER_THIRST).ifPresent(thirst -> {
+            thirst.addThirst(properties.hydrationLevel());
+            ClientThirstData.set(thirst.getThirst());
+        });
+
+        // Apply pollution chance and effects
+        if (properties.pollution() > 0 && player.getRandom().nextFloat() < properties.pollution()) {
+            player.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
+        }
+
+        // Apply salinity logic (negative thirst is handled by addThirst above, but
+        // could add nausea)
+        if (properties.salinity() > 0 && player.getRandom().nextFloat() < properties.salinity()) {
+            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0));
+        }
+
+        // Play drinking sound
+        player.level().playSound(null, player.blockPosition(), SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 1.0F,
+                1.0F);
     }
 }

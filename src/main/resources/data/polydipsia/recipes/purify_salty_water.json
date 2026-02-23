@@ -1,0 +1,10 @@
+{
+  "type": "polydipsia:water_purifying",
+  "ingredient": {
+    "item": "polydipsia:salty_water_bottle"
+  },
+  "output": {
+    "item": "polydipsia:purified_water_bottle",
+    "count": 1
+  }
+}
