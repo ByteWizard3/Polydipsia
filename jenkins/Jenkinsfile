@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    tools {
+        // Requires configuring a JDK named 'jdk17' in Jenkins (Manage Jenkins -> Tools)
+        // Minecraft 1.20.1 requires Java 17 to build.
+        jdk 'jdk17'
+    }
+
+    environment {
+        // Keep gradle cache inside the workspace to avoid polluting the global jenkins cache
+        // or facing permission issues with concurrent builds.
+        GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checks out code from the configured SCM (Git)
+                checkout scm
+            }
+        }
+
+        stage('Grant Permissions') {
+            steps {
+                // Ensure the gradlew wrapper is executable
+                sh 'chmod +x ./gradlew'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Execute the forge gradle build task
+                // We use --no-daemon to prevent Gradle background processes from hanging in Jenkins
+                sh './gradlew build --no-daemon'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                // Save the built jars so they can be downloaded from the Jenkins UI
+                archiveArtifacts artifacts: 'build/libs/*.jar', allowEmptyArchive: false
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up workspace after build to save space
+            cleanWs()
+        }
+        success {
+            echo "Build finished successfully! Artifacts are available in the Jenkins UI."
+        }
+        failure {
+            echo "Build failed. Check the console output for Gradle errors."
+        }
+    }
+}
