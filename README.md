@@ -43,7 +43,9 @@ This mod uses Forge and Gradle.
 
 ## Releases
 
-CI runs on pushes to `main`/`master` and pull requests. To publish a release, create and push a semantic-version tag:
+CI runs on pushes to `main`/`master` and pull requests. Every push to `main`/`master` builds and publishes a GitHub Release using `mod_version` from `gradle.properties`.
+
+You can also publish a specific version with a semantic-version tag:
 
 ```bash
 git tag v1.1.0
