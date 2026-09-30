@@ -4,7 +4,7 @@
 
 - [x] Initial Mod Setup (Forge 1.20.1)
 - [x] Basic Gradle and IDE Configurations
-- [x] CI/CD Pipeline (Jenkinsfile in Docker)
+- [x] CI/CD Pipeline (GitHub Actions)
 - [x] Make scripts for easy local development
 - [ ] Fix dependencies and unresolved imports
 - [ ] Ensure build consistency across local and CI environments

@@ -40,3 +40,14 @@ This mod uses Forge and Gradle.
 # Run the Minecraft client
 ./gradlew runClient
 ```
+
+## Releases
+
+CI runs on pushes to `main`/`master` and pull requests. To publish a release, create and push a semantic-version tag:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+GitHub Actions builds the mod with Java 17 and attaches the release JAR to a GitHub Release. The tag version is used for the JAR and the version in `mods.toml`.
