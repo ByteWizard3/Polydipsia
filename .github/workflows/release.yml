@@ -39,7 +39,7 @@ jobs:
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             VERSION="${RELEASE_VERSION#v}"
           else
-            VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+            VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1 | tr -d '\r')"
           fi
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "Release version must use semantic versioning, for example 1.2.3"
@@ -54,7 +54,7 @@ jobs:
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             RELEASE_VERSION="${GITHUB_REF_NAME#v}"
           else
-            RELEASE_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+            RELEASE_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1 | tr -d '\r')"
           fi
           RELEASE_TAG="v$RELEASE_VERSION"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
